@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Isreal Morawo — Soft Matter & Computational Mechanics</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #080c10;
+    --surface: #0d1520;
+    --surface2: #111d2e;
+    --accent: #1acea0;
+    --accent2: #7b6ef6;
+    --accent3: #e8a045;
+    --text: #dce8f0;
+    --muted: #5a7a8a;
+    --border: rgba(26,206,160,0.12);
+    --border2: rgba(255,255,255,0.06);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* === CANVAS BG === */
+  #bg-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  /* === NAV === */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 4rem;
+    background: rgba(8,12,16,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border2);
+  }
+
+  .nav-logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-decoration: none;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.06em;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--accent); }
+
+  /* === MAIN WRAPPER === */
+  main { position: relative; z-index: 1; }
+
+  section { padding: 7rem 4rem; max-width: 1100px; margin: 0 auto; }
+
+  /* === HERO === */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 8rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    line-height: 1.05;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.4s forwards;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    color: var(--muted);
+    font-weight: 300;
+    margin-top: 1.25rem;
+    max-width: 580px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.6s forwards;
+  }
+
+  .hero-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.8s forwards;
+  }
+
+  .tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.04em;
+  }
+
+  .tag-green { background: rgba(26,206,160,0.1); color: var(--accent); border: 1px solid rgba(26,206,160,0.25); }
+  .tag-purple { background: rgba(123,110,246,0.1); color: #a79cf8; border: 1px solid rgba(123,110,246,0.25); }
+  .tag-amber { background: rgba(232,160,69,0.1); color: #e8a045; border: 1px solid rgba(232,160,69,0.25); }
+
+  .hero-cta {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2.5rem;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.8s 1s forwards;
+  }
+
+  .btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    padding: 12px 24px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.2s;
+    display: inline-block;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #080c10;
+    font-weight: 500;
+  }
+  .btn-primary:hover { background: #22e8b5; transform: translateY(-2px); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border2);
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+
+  /* === SECTION HEADERS === */
+  .sec-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 3rem;
+  }
+
+  /* === ABOUT === */
+  #about { border-top: 1px solid var(--border2); }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  .about-text p {
+    font-size: 15px;
+    color: #8ca8b8;
+    margin-bottom: 1.25rem;
+    font-weight: 300;
+    line-height: 1.85;
+  }
+
+  .about-text p strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .about-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border2);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .stat-cell {
+    background: var(--surface);
+    padding: 1.5rem;
+  }
+
+  .stat-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.5rem;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-desc {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  /* === RESEARCH === */
+  #research { border-top: 1px solid var(--border2); }
+
+  .research-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .research-card {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    padding: 1.75rem;
+    transition: border-color 0.2s, transform 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .research-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .research-card.green::before { background: var(--accent); }
+  .research-card.purple::before { background: var(--accent2); }
+
+  .research-card:hover {
+    border-color: rgba(26,206,160,0.3);
+    transform: translateY(-3px);
+  }
+
+  .research-card h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .research-card.purple h3 { color: #a79cf8; }
+
+  .research-card ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .research-card ul li {
+    font-size: 14px;
+    color: #8ca8b8;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border2);
+    padding-left: 14px;
+    position: relative;
+    font-weight: 300;
+  }
+
+  .research-card ul li:last-child { border-bottom: none; }
+
+  .research-card ul li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--muted);
+    font-size: 11px;
+  }
+
+  /* === PUBLICATIONS === */
+  #publications { border-top: 1px solid var(--border2); }
+
+  .pub-item {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 2rem;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--border2);
+    align-items: start;
+  }
+
+  .pub-item:first-child { padding-top: 0; }
+
+  .pub-year {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    padding-top: 4px;
+  }
+
+  .pub-venue {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+
+  .pub-venue.journal { color: var(--accent); }
+  .pub-venue.conf { color: #a79cf8; }
+
+  .pub-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.15rem;
+    color: var(--text);
+    line-height: 1.4;
+    margin-bottom: 6px;
+  }
+
+  .pub-detail {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  .pub-badge {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: rgba(232,160,69,0.12);
+    color: var(--accent3);
+    border: 1px solid rgba(232,160,69,0.25);
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  /* === AWARDS === */
+  #awards { border-top: 1px solid var(--border2); }
+
+  .awards-list {
+    display: grid;
+    gap: 1px;
+    background: var(--border2);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .award-item {
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.25rem 1.5rem;
+    transition: background 0.15s;
+  }
+
+  .award-item:hover { background: var(--surface2); }
+
+  .award-yr {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    min-width: 40px;
+  }
+
+  .award-name {
+    font-size: 14px;
+    color: var(--text);
+    font-weight: 400;
+    flex: 1;
+  }
+
+  .award-org {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* === SKILLS === */
+  #skills { border-top: 1px solid var(--border2); }
+
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .skill-block {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  .skill-block h4 {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .skill-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .skill-pill {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    padding: 5px 11px;
+    border-radius: 6px;
+    background: var(--surface2);
+    color: #8ca8b8;
+    border: 1px solid var(--border2);
+  }
+
+  /* === CONTACT === */
+  #contact { border-top: 1px solid var(--border2); }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
+  .contact-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 1.25rem 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.2s;
+  }
+
+  .contact-link:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .contact-icon {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    min-width: 28px;
+  }
+
+  .contact-label {
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+  .contact-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* === FOOTER === */
+  footer {
+    border-top: 1px solid var(--border2);
+    padding: 2rem 4rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* === ANIMATIONS === */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s, transform 0.7s;
+  }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  /* === RESPONSIVE === */
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    section { padding: 5rem 1.5rem; }
+    #hero { padding: 7rem 1.5rem 4rem; }
+    .about-grid, .research-grid, .skills-grid { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 0.5rem; padding: 2rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<nav>
+  <a class="nav-logo" href="#hero">IM / DevCalculus</a>
+  <ul class="nav-links">
+    <li><a href="#about">about</a></li>
+    <li><a href="#research">research</a></li>
+    <li><a href="#publications">publications</a></li>
+    <li><a href="#awards">awards</a></li>
+    <li><a href="#contact">contact</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-label">PhD Researcher · UBC Vancouver</div>
+  <h1>Isreal<br/><em>Morawo</em></h1>
+  <p class="hero-sub">Numerical simulation of passive and active chiral nematics — where chirality, confinement, and activity conspire to produce topological chaos.</p>
+  <div class="hero-tags">
+    <span class="tag tag-green">passive chiral nematics</span>
+    <span class="tag tag-green">active chiral nematics</span>
+    <span class="tag tag-purple">topological defects</span>
+    <span class="tag tag-purple">Q-tensor / Landau–de Gennes</span>
+    <span class="tag tag-amber">CFD</span>
+    <span class="tag tag-amber">soft matter physics</span>
+  </div>
+  <div class="hero-cta">
+    <a href="#publications" class="btn btn-primary">View publications</a>
+    <a href="https://drive.google.com/drive/folders/1NoAQbdIRngEtyDhHCppU-tYS_PeJ88-Q" target="_blank" class="btn btn-secondary">Download CV</a>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="sec-label">About</div>
+  <h2>Soft matter,<br/>hard mathematics.</h2>
+  <div class="about-grid">
+    <div class="about-text reveal">
+      <p>I am a PhD student in Mechanical Engineering at UBC Vancouver, working at the intersection of <strong>computational mechanics, soft matter physics, and applied mathematics</strong>.</p>
+      <p>My research focuses on the hydrodynamics and microstructural dynamics of <strong>passive and active chiral nematics</strong> — liquid crystal phases in which molecular chirality couples with flow, geometric confinement, and activity to produce rich topological phenomena including defect nucleation, chaotic dynamics, and emergent collective flows.</p>
+      <p>Methodologically, I use the <strong>Landau–de Gennes Q-tensor framework</strong> implemented via finite element and finite volume methods, with simulations run in COMSOL Multiphysics and OpenFOAM and visualized in ParaView.</p>
+    </div>
+    <div class="about-stats reveal">
+      <div class="stat-cell"><div class="stat-num">5</div><div class="stat-desc">publications & talks</div></div>
+      <div class="stat-cell"><div class="stat-num">9</div><div class="stat-desc">awards & fellowships</div></div>
+      <div class="stat-cell"><div class="stat-num">3</div><div class="stat-desc">countries · conferences</div></div>
+      <div class="stat-cell"><div class="stat-num">3</div><div class="stat-desc">years at UBC</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- RESEARCH -->
+<section id="research">
+  <div class="sec-label">Research focus</div>
+  <h2>Two regimes,<br/>one framework.</h2>
+  <div class="research-grid">
+    <div class="research-card green reveal">
+      <h3>Passive systems</h3>
+      <ul>
+        <li>Cholesteric & nematic hydrodynamics</li>
+        <li>Confined channel flows</li>
+        <li>Sudden contraction geometries</li>
+        <li>Lid-driven cavity microstructure</li>
+        <li>Prosthetic hip joint lubrication</li>
+        <li>Director field evolution & defect patterns</li>
+      </ul>
+    </div>
+    <div class="research-card purple reveal">
+      <h3>Active systems</h3>
+      <ul>
+        <li>Active chiral nematics</li>
+        <li>Chirality–activity coupling</li>
+        <li>Spontaneous flow & chaotic dynamics</li>
+        <li>Topological defect nucleation & annihilation</li>
+        <li>Emergent collective motion</li>
+        <li>Confinement effects on active turbulence</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- PUBLICATIONS -->
+<section id="publications">
+  <div class="sec-label">Publications & Talks</div>
+  <h2>Work.</h2>
+
+  <div class="pub-item reveal">
+    <div class="pub-year">2025</div>
+    <div>
+      <div class="pub-venue conf">ECLC 2025 · Prague</div>
+      <div class="pub-title">Chirality, Confinement, and Chaos in Cholesteric Liquid Crystals</div>
+      <div class="pub-detail">Invited talk — European Conference on Liquid Crystals</div>
+    </div>
+  </div>
+
+  <div class="pub-item reveal">
+    <div class="pub-year">2025</div>
+    <div>
+      <div class="pub-venue journal">Physics of Fluids · Journal article</div>
+      <div class="pub-title">Hydrodynamics of Chiral Nematics in a Channel and Sudden Contraction Geometry</div>
+      <div class="pub-detail">AIP Publishing, 2025</div>
+    </div>
+  </div>
+
+  <div class="pub-item reveal">
+    <div class="pub-year">2025</div>
+    <div>
+      <div class="pub-venue conf">CSME / CFDSC / CSR 2025 · Montréal</div>
+      <div class="pub-title">Microstructural Evolution of Chiral Nematics: Lid-Driven Cavity Flow</div>
+      <div class="pub-detail">Canadian Society for Mechanical Engineering Congress</div>
+    </div>
+  </div>
+
+  <div class="pub-item reveal">
+    <div class="pub-year">2024</div>
+    <div>
+      <div class="pub-venue conf">Society of Rheology Meeting · Austin</div>
+      <div class="pub-title">Hydrodynamics of Chiral Liquid Crystals in Confined Geometries</div>
+      <div class="pub-detail">Annual Meeting of the Society of Rheology</div>
+    </div>
+  </div>
+
+  <div class="pub-item reveal">
+    <div class="pub-year">2024</div>
+    <div>
+      <div class="pub-venue conf">CMBBE 2024 · Vancouver</div>
+      <div class="pub-title">Nematic Liquid Crystal Flow in a Prosthetic Hip Joint <span class="pub-badge">Best Poster</span></div>
+      <div class="pub-detail">International Symposium on Computer Methods in Biomechanics and Biomedical Engineering</div>
+    </div>
+  </div>
+
+</section>
+
+<!-- AWARDS -->
+<section id="awards">
+  <div class="sec-label">Honors & Awards</div>
+  <h2>Recognition.</h2>
+  <div class="awards-list reveal">
+    <div class="award-item"><span class="award-yr">2025</span><span class="award-name">Norman and Gwendelyne Moysa Memorial Award</span><span class="award-org">UBC</span></div>
+    <div class="award-item"><span class="award-yr">2025</span><span class="award-name">Globalink MITACs Accelerate Grant</span><span class="award-org">MITACs</span></div>
+    <div class="award-item"><span class="award-yr">2025</span><span class="award-name">Faculty of Applied Science Academic Award</span><span class="award-org">UBC</span></div>
+    <div class="award-item"><span class="award-yr">2025</span><span class="award-name">Presidential Excellence Award</span><span class="award-org">UBC</span></div>
+    <div class="award-item"><span class="award-yr">2024</span><span class="award-name">Departmental Scholar Award</span><span class="award-org">UBC</span></div>
+    <div class="award-item"><span class="award-yr">2024</span><span class="award-name">Presidential Excellence Award</span><span class="award-org">UBC</span></div>
+    <div class="award-item"><span class="award-yr">2024</span><span class="award-name">Best Research Poster — CMBBE</span><span class="award-org">CMBBE</span></div>
+    <div class="award-item"><span class="award-yr">2024</span><span class="award-name">Ambassador PhD Fellowship</span><span class="award-org">UBC</span></div>
+    <div class="award-item"><span class="award-yr">2022</span><span class="award-name">Graduate Research Assistantship</span><span class="award-org">UBC</span></div>
+    <div class="award-item"><span class="award-yr">2021</span><span class="award-name">2nd Best Graduating Student — FET Mechanical Engineering</span><span class="award-org">LAUTECH</span></div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="sec-label">Technical skills</div>
+  <h2>Toolkit.</h2>
+  <div class="skills-grid">
+    <div class="skill-block reveal">
+      <h4>Languages</h4>
+      <div class="skill-pills">
+        <span class="skill-pill">Python</span>
+        <span class="skill-pill">MATLAB</span>
+        <span class="skill-pill">C++</span>
+      </div>
+    </div>
+    <div class="skill-block reveal">
+      <h4>Simulation software</h4>
+      <div class="skill-pills">
+        <span class="skill-pill">COMSOL</span>
+        <span class="skill-pill">OpenFOAM</span>
+        <span class="skill-pill">ParaView</span>
+      </div>
+    </div>
+    <div class="skill-block reveal">
+      <h4>Methods</h4>
+      <div class="skill-pills">
+        <span class="skill-pill">Q-tensor FEM</span>
+        <span class="skill-pill">FVM / CFD</span>
+        <span class="skill-pill">Continuum mechanics</span>
+        <span class="skill-pill">Landau–de Gennes</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="sec-label">Contact</div>
+  <h2>Let's talk.</h2>
+  <p style="color:#8ca8b8; font-weight:300; margin-bottom:2rem; max-width:520px;">Open to collaborations in numerical methods, CFD, and soft matter mechanics. Always happy to discuss liquid crystal physics, simulations, or research.</p>
+  <div class="contact-grid">
+    <a href="https://www.linkedin.com/in/isreal-morawo-masc-410779184/" target="_blank" class="contact-link reveal">
+      <span class="contact-icon">in/</span>
+      <div><div class="contact-label">LinkedIn</div><div class="contact-sub">Isreal Morawo</div></div>
+    </a>
+    <a href="mailto:moore172@student.ubc.ca" class="contact-link reveal">
+      <span class="contact-icon">@</span>
+      <div><div class="contact-label">Email</div><div class="contact-sub">moore172@student.ubc.ca</div></div>
+    </a>
+    <a href="https://github.com/DevCalculus" target="_blank" class="contact-link reveal">
+      <span class="contact-icon">gh/</span>
+      <div><div class="contact-label">GitHub</div><div class="contact-sub">DevCalculus</div></div>
+    </a>
+    <a href="https://drive.google.com/drive/folders/1NoAQbdIRngEtyDhHCppU-tYS_PeJ88-Q" target="_blank" class="contact-link reveal">
+      <span class="contact-icon">cv/</span>
+      <div><div class="contact-label">CV & Portfolio</div><div class="contact-sub">Google Drive</div></div>
+    </a>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <span>Isreal Morawo · UBC Vancouver · 2025</span>
+  <span>Mechanical Engineering · Soft Matter</span>
+</footer>
+
+<script>
+// Animated liquid crystal director field background
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, t = 0;
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  const spacing = 38;
+  const cols = Math.ceil(W / spacing) + 1;
+  const rows = Math.ceil(H / spacing) + 1;
+
+  for (let i = 0; i < cols; i++) {
+    for (let j = 0; j < rows; j++) {
+      const x = i * spacing;
+      const y = j * spacing;
+      // Chiral nematic director field — helical rotation with perturbation
+      const chirality = 0.012;
+      const theta = chirality * (x + y) + 0.3 * Math.sin(0.008 * x + t * 0.4) * Math.cos(0.006 * y + t * 0.3) + t * 0.08;
+      const len = 14;
+      const dx = Math.cos(theta) * len;
+      const dy = Math.sin(theta) * len;
+
+      // Color based on director angle
+      const hue = ((theta % Math.PI) / Math.PI) * 60 + 160;
+      const alpha = 0.25 + 0.15 * Math.sin(theta * 2);
+      ctx.strokeStyle = `hsla(${hue}, 70%, 60%, ${alpha})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x - dx / 2, y - dy / 2);
+      ctx.lineTo(x + dx / 2, y + dy / 2);
+      ctx.stroke();
+
+      // Defect markers — small dots where |∇θ| is large
+      if (i > 0 && j > 0 && Math.abs(Math.sin(theta * 4)) > 0.97) {
+        ctx.beginPath();
+        ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(160, 80%, 65%, 0.5)`;
+        ctx.fill();
+      }
+    }
+  }
+  t += 0.012;
+  requestAnimationFrame(draw);
+}
+draw();
+
+// Scroll reveal
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 60);
+    }
+  });
+}, { threshold: 0.1 });
+reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
